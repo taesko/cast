@@ -26,11 +26,11 @@ def cli():
 
 
 @cli.command()
-@click.argument('dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True))
 @click.argument('name')
+@click.argument('dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True))
 @click.option('-c', '--conform-dir/--no-conform-dir',
               help="if the directory does not conform to template - create the missing subdirectories")
-def reg(dir_path, name, conform_dir):
+def reg(name, dir_path, conform_dir):
     """ Register the directory as an instance of the template with :name:.
 
     If the directory does not conform to the template's structure this action fails.
@@ -216,10 +216,10 @@ def mv(name, src, dst, verbose):
 
 
 @cli.command()
-@click.argument('dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True))
 @click.argument('template')
+@click.argument('dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True))
 @click.option('-c', '--check-only', is_flag=True, default=False)
-def conform(dir_path, template, check_only):
+def conform(template, dir_path, check_only):
     """ Conforms the directory to the template's structure"""
     try:
         path = Template(name=template).path

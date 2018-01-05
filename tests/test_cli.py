@@ -40,7 +40,7 @@ def test_add_dirs():
     pass
 
 
-REG_ERROR = "Usage: reg [OPTIONS] DIR_PATH NAME\n\nError: Invalid value for {hint}: {msg}\n"
+REG_ERROR = "Usage: reg [OPTIONS] NAME DIR_PATH\n\nError: Invalid value for {hint}: {msg}\n"
 
 
 @pytest.mark.parametrize('name,dir_path,output', [
@@ -50,7 +50,7 @@ REG_ERROR = "Usage: reg [OPTIONS] DIR_PATH NAME\n\nError: Invalid value for {hin
 ])
 def test_reg(name, dir_path, output):
     runner = CliRunner()
-    result = runner.invoke(cli.reg, [dir_path, name])
+    result = runner.invoke(cli.reg, [name, dir_path])
     assert result.output == output
 
 
@@ -75,7 +75,7 @@ def test_conform():
     instance_1 = (test_conform_dir / 'instance_1')
     instance_1.mkdir(exist_ok=True)
     runner = CliRunner()
-    runner.invoke(cli.conform, [str(instance_1), t_name])
+    runner.invoke(cli.conform, [t_name, str(instance_1)])
     assert conform.is_conformed(dir_path=instance_1, template_path=MAIN_TEMPLATE.path)
 
 
