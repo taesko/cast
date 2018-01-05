@@ -16,7 +16,7 @@ NAME = 'fist'
 DESCRIPTION = 'FIle System Templates'
 URL = 'https://github.com/taesko/fist'
 EMAIL = 'taeskow@gmail.com'
-AUTHOR = 'taesko'
+AUTHOR = 'Antonio Todorov'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
