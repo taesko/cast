@@ -225,7 +225,13 @@ def conform(template, dir_path, check_only):
         path = Template(name=template).path
     except exceptions.TemplateNotFoundError as e:
         raise click.BadParameter(message=e.msg, param=template)
-    fist.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
+    if check_only:
+        if fist.conform.is_conformed(dir_path=dir_path, template_path=path):
+            click.echo("OK")
+        else:
+            click.echo("NOT OK")
+    else:
+        fist.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
 
 
 def print_registered(ctx, param, value):
