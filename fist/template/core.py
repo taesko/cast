@@ -76,8 +76,12 @@ def exists(name):
 
 class Status:
 
-    def __init__(self, template):
-        self.template = template
+    def __init__(self, name):
+        self.template = Template(name)
+
+    def __iter__(self):
+        for path in self.template.instances:
+            yield path, self[path]
 
     def __getitem__(self, item):
         conformed = conform.is_conformed(item, self.template.path)
@@ -92,10 +96,20 @@ class Status:
         else:
             return 'NOT OK'
 
-    def all_instances(self):
-        for path in self.template.instances:
-            yield path, self[path]
+    def conformity_status(self):
+        if all(st == 'OK' for _, st in self):
+            return 'OK'
+        else:
+            return 'NOT OK'
 
     def hash_status(self):
         ok = self.template.hash == registry.template_hash(name=self.template.name)
         return 'OK' if ok else 'NOT OK'
+
+    @classmethod
+    def of_instance(cls, path):
+        template = Template.for_instance(path)
+        if template:
+            return cls(template.name)[path]
+        else:
+            return "UNREGISTERED"

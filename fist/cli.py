@@ -3,12 +3,11 @@ import pathlib
 import click
 import os
 
-import shutil
 
 import fist.conform
-from fist import exceptions, dirdiff
+from fist import exceptions, cliprint
 from fist.template import registry
-from fist.template.core import Template, Status
+from fist.template.core import Template
 from fist.template import path as tpath
 
 
@@ -234,14 +233,6 @@ def conform(template, dir_path, check_only):
         fist.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
 
 
-def print_registered(ctx, param, value):
-    if not value or ctx.resilient_parsing:
-        return
-    for t in Template.all():
-        click.echo('{} -> {}'.format(t.name, ':'.join(t.instances)))
-    ctx.exit()
-
-
 @cli.command()
 @click.argument('name')
 @click.option('-s', '--structure', type=click.Choice(['tree', 'list', 'none']), default='none',
@@ -249,78 +240,25 @@ def print_registered(ctx, param, value):
                     'Accepts one of three values which determine the style - tree, list and none'))
 @click.option('-p', '--is-path', is_flag=True,
               help="interpret the argument as a path even if a template with such name exists")
-@click.option('-r', '--registered', is_flag=True, callback=print_registered,
+@click.option('-r', '--registered', is_flag=True, callback=cliprint.print_registered,
               expose_value=False, is_eager=True,
               help=("print every template and it's registered instances. "
                     "If this option is specified no arguments are required"))
 @click.option('-v', '--verbose', 'verbosity', count=True)
 def info(name, structure, is_path, verbosity):
     """ Print information about the template or instance."""
-    # TODO maybe add tree/ls-like printing of contents of directories inside instances
     if name in registry.all_template_names() and not is_path:
-        status, instances, struct = template_info(name=name, structure=structure)
-        click.echo("Template status -> {}".format(status.hash_status()))
-        if verbosity:
-            click.echo("Instances: ")
-            for path, st_msg in status.all_instances():
-                click.echo('-' * 8 + '{} -> {}'.format(path, st_msg))
-        else:
-            all_ok = 'OK' if all(msg == 'OK' for _, msg in status.all_instances()) else 'NOT OK'
-            click.echo("Instances status - {}".format(all_ok))
-        if struct:
-            click.echo("Structure:")
-            click.echo(struct)
+        cliprint.print_template_status(template_name=name, verbosity=verbosity)
+        if structure != 'none':
+            path = Template(name).path
+            click.echo("")
+            cliprint.print_structure(path, structure=structure)
     elif not os.path.exists(name):
         raise click.BadParameter('{!r} is not an existing path'.format(name), param_hint='name')
     elif not os.path.isdir(name):
         raise click.BadParameter('{!r} is not an existing directory'.format(name), param_hint='name')
     else:
-        status, template, struct = instance_info(dir_path=name, structure=structure)
-        click.echo('{} : {}'.format(status, template))
-        if struct:
-            click.echo(struct)
-
-
-def instance_info(dir_path, structure):
-    """ Prints the status, template and structure in list or tree format of the instance."""
-    # TODO verbosity
-    template = Template.for_instance(dir_path)
-    status = Status(template)[dir_path]
-    if not structure:
-        struct = None
-    elif structure == 'list':
-        struct = dir_listing(dir_path)
-    else:
-        struct = dir_tree(dir_path)
-    return status, template, struct
-
-
-def template_info(name, structure='tree'):
-    # TODO verbosity
-    try:
-        template = Template(name=name)
-    except exceptions.TemplateNotFoundError as e:
-        raise click.BadParameter(message=e.msg, param=name)
-    status = Status(template)
-    instances = template.instances
-    if structure == 'list':
-        struct = dir_listing(template.path)
-    else:
-        struct = dir_tree(template.path)
-    return status, instances, struct
-
-
-def dir_tree(path):
-    """ The directory tree of path pretty formatted as a string."""
-    lines = []
-    for rel_subdir in dirdiff.flattened_subdirs(path):
-        indent = 2 + 2 * rel_subdir.count(os.path.sep)
-        fill = '-'
-        name = os.path.basename(rel_subdir)
-        lines.append("{} {}".format(fill * indent, name))
-    return '\n'.join(lines)
-
-
-def dir_listing(path):
-    """ The directory contents of path pretty formatted as a string."""
-    return '\n'.join(dirdiff.flattened_subdirs(path))
+        cliprint.print_instance_status(dir_path=name, verbosity=verbosity)
+        if structure != 'none':
+            click.echo("")
+            cliprint.print_structure(dir_path=name, structure=structure)
