@@ -1,5 +1,5 @@
 # Fist
-> a cli app for file system templates.
+> command line app for file system templates.
 
 Fist can modify the structure of multiple directories at once.
 Provided these directories are registered for a common template - moving,
