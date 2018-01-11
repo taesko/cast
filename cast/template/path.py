@@ -6,8 +6,8 @@ import shutil
 
 import sys
 
-from fist import conform, exceptions
-from fist.template import registry
+from cast import conform, exceptions
+from cast.template import registry
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class TemplatePath:
     """ Represents a path to a directory inside a template and can be used to
     compute the corresponding path for instances.
 
-    >>> from fist.template.core import Template
+    >>> from cast.template.core import Template
     >>> tp = TemplatePath(Template('album_template'), 'some/child/dir')
 
     Use the method path_for_instance(instance_root) to compute the instance path and return a pathlib.Path obj
@@ -40,7 +40,7 @@ class TemplatePath:
         Raises ValueError if the joined path of the template's root and rel_path is
         outside the template's root.
 
-        :type template: fist.template.core.Template
+        :type template: cast.template.core.Template
         :type rel_path: str
         """
         self.template = template

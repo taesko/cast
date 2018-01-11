@@ -4,11 +4,11 @@ import click
 import os
 
 
-import fist.conform
-from fist import exceptions, cliprint
-from fist.template import registry
-from fist.template.core import Template
-from fist.template import path as tpath
+import cast.conform
+from cast import exceptions, cliprint
+from cast.template import registry
+from cast.template.core import Template
+from cast.template import path as tpath
 
 
 # TODO fix problems with functions raising uncatched exceptions when working with outdated templates
@@ -33,7 +33,7 @@ def reg(name, dir_path, conform_dir):
     """ Register the directory as an instance of the template with :name:.
 
     If the directory does not conform to the template's structure this action fails.
-    Use the -c/--conform-dir flag to have fist create missing directories."""
+    Use the -c/--conform-dir flag to have cast create missing directories."""
     try:
         registry.register_instance(name=name, path=dir_path)
     except exceptions.TemplateNotFoundError:
@@ -41,7 +41,7 @@ def reg(name, dir_path, conform_dir):
     except exceptions.NotConformedDirError:
         if conform_dir:
             path = Template(name).path
-            fist.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
+            cast.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
             registry.register_instance(name=name, path=dir_path)
         else:
             raise click.BadParameter("{!r} is not conformed to template {!r}".format(dir_path, name),
@@ -225,12 +225,12 @@ def conform(template, dir_path, check_only):
     except exceptions.TemplateNotFoundError as e:
         raise click.BadParameter(message=e.msg, param=template)
     if check_only:
-        if fist.conform.is_conformed(dir_path=dir_path, template_path=path):
+        if cast.conform.is_conformed(dir_path=dir_path, template_path=path):
             click.echo("OK")
         else:
             click.echo("NOT OK")
     else:
-        fist.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
+        cast.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
 
 
 @cli.command()

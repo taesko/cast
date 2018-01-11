@@ -3,11 +3,11 @@ import pathlib
 import pytest
 from click.testing import CliRunner
 
-from fist import cli, conform
-from fist.template import registry
-from fist.template import path as tpath
-from fist.template.core import Template
-from fist.template import core as tcore
+from cast import cli, conform
+from cast.template import registry
+from cast.template import path as tpath
+from cast.template.core import Template
+from cast.template import core as tcore
 from tests.utils import MAIN_TEMPLATE, CONFORMED_INSTANCE, UNCONFORMED_INSTANCE
 
 
@@ -25,8 +25,8 @@ ADD_ERROR = "Usage: add [OPTIONS] NAME [DIR_PATHS]...\n\nError: Invalid value fo
 @pytest.mark.parametrize('name,dir_paths,output', [
     (MAIN_TEMPLATE.name, [str(MAIN_TEMPLATE.path)],
      ADD_ERROR.format(hint='name', msg="a {!r} template already exists.".format(MAIN_TEMPLATE.name))),
-    (MAIN_TEMPLATE.name + 'qwertyasdfgh', ['fist/__init__.py'],
-     ADD_ERROR.format(hint='dir_path', msg="{!r} is not a directory.".format('fist/__init__.py'))),
+    (MAIN_TEMPLATE.name + 'qwertyasdfgh', ['cast/__init__.py'],
+     ADD_ERROR.format(hint='dir_path', msg="{!r} is not a directory.".format('cast/__init__.py'))),
     ('qwerty', ['not_a_real_setup.py'],
      ADD_ERROR.format(hint='dir_path', msg="{!r} is not an existing path.".format('not_a_real_setup.py')))
 ])
@@ -44,9 +44,9 @@ REG_ERROR = "Usage: reg [OPTIONS] NAME DIR_PATH\n\nError: Invalid value for {hin
 
 
 @pytest.mark.parametrize('name,dir_path,output', [
-    (MAIN_TEMPLATE.name, 'fist',
+    (MAIN_TEMPLATE.name, 'cast',
      REG_ERROR.format(hint='dir_path',
-                      msg="{!r} is not conformed to template {!r}".format('fist', MAIN_TEMPLATE.name)))
+                      msg="{!r} is not conformed to template {!r}".format('cast', MAIN_TEMPLATE.name)))
 ])
 def test_reg(name, dir_path, output):
     runner = CliRunner()

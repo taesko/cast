@@ -12,9 +12,9 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'fist'
+NAME = 'cast'
 DESCRIPTION = 'FIle System Templates'
-URL = 'https://github.com/taesko/fist'
+URL = 'https://github.com/taesko/cast'
 EMAIL = 'taeskow@gmail.com'
 AUTHOR = 'Antonio Todorov'
 
@@ -90,7 +90,7 @@ setup(
     # py_modules=['mypackage'],
 
     entry_points={
-        'console_scripts': ['fist=fist.cli:cli'],
+        'console_scripts': ['cast=cast.cli:cli'],
     },
     install_requires=REQUIRED,
     include_package_data=True,

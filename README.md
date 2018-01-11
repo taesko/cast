@@ -1,7 +1,7 @@
-# Fist
+# Cast
 > command line app for file system templates.
 
-Fist can modify the structure of multiple directories at once.
+Cist can modify the structure of multiple directories at once.
 Provided these directories are registered for a common template - moving,
 renaming or deleting folders from that template will apply those changes
 to the directories (called instances of the template).
@@ -12,8 +12,8 @@ to the directories (called instances of the template).
 Linux:
 
 ```sh
-git clone https://github.com/taesko/fist.git
-cd fist
+git clone https://github.com/taesko/cast.git
+cd cast
 pip install .
 ```
 
@@ -25,12 +25,12 @@ work properly.
 
 Use any existing directory to make a template out of it.
 ```sh
-fist add template_name ./dir_path
+cast add template_name ./dir_path
 ```
 
 Register any other directory to that template as it's instance
 ```sh
-fist register template_name /directory/we/want/registered
+cast register template_name /directory/we/want/registered
 ```
 
 If the directory's structure is not conformed to the template's an
@@ -40,17 +40,17 @@ as the template's. (it is OK for the instance to have other directories as well)
 
 Create additional directories inside a template:
 ```sh
-fist add -m template_name various dir_names dir_names/similar to mkdir arguments
+cast add -m template_name various dir_names dir_names/similar to mkdir arguments
 ```
 
 Rename a directory inside a template
 ```sh
-fist mv template_name relative_src_path relative_dst_path
+cast mv template_name relative_src_path relative_dst_path
 ```
 
 Remove a directory from a template
 ```sh
-fist rm template_name multiple relative/directory/paths
+cast rm template_name multiple relative/directory/paths
 ```
 
 Commands that modify a templates structure all take the name of the
@@ -62,7 +62,7 @@ but this is not true for removing directories.
 
 For full information:
 ```sh
-fist --help
+cast --help
 ```
 
 ## Development setup
@@ -70,8 +70,8 @@ fist --help
 There is no development branch (yet) and setup is nearly identical to
 user installation.
 ```sh
-git clone https://github.com/taesko/fist.git
-cd fist
+git clone https://github.com/taesko/cast.git
+cd cast
 pip install -e .
 ```
 

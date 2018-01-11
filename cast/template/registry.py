@@ -7,12 +7,12 @@ import pathlib
 
 import shutil
 
-from fist import exceptions, dirdiff, conform
+from cast import exceptions, dirdiff, conform
 
-FIST_DIR = pathlib.Path(os.environ['HOME']) / '.fist'
-CONFIG_FILE = FIST_DIR / 'config.json'
-TEMPLATE_DIR = FIST_DIR / 'templates'
-FIST_DIR.mkdir(exist_ok=True)
+CAST_DIR = pathlib.Path(os.environ['HOME']) / '.cast'
+CONFIG_FILE = CAST_DIR / 'config.json'
+TEMPLATE_DIR = CAST_DIR / 'templates'
+CAST_DIR.mkdir(exist_ok=True)
 TEMPLATE_DIR.mkdir(exist_ok=True)
 logger = logging.getLogger(__name__)
 

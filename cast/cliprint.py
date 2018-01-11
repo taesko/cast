@@ -5,8 +5,8 @@ import sys
 
 import click
 
-from fist import dirdiff
-from fist.template import core
+from cast import dirdiff
+from cast.template import core
 
 
 logger = logging.getLogger(__name__)

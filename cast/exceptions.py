@@ -1,10 +1,10 @@
-class FistError(Exception):
+class CastError(Exception):
     def __init__(self, msg):
         self.msg = msg
         super().__init__(msg)
 
 
-class NotConformedDirError(FistError):
+class NotConformedDirError(CastError):
     def __init__(self, directory, template):
         msg = "directory {!r} is not conformed to template {}".format(directory, template)
         super().__init__(msg)
@@ -12,7 +12,7 @@ class NotConformedDirError(FistError):
         self.template = template
 
 
-class TemplateError(FistError):
+class TemplateError(CastError):
     pass
 
 
