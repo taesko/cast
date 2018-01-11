@@ -66,7 +66,7 @@ class UploadCommand(Command):
             pass
 
         self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        os.system('{0} setup.py sdist bdist_wheel'.format(sys.executable))
 
         self.status('Uploading the package to PyPi via Twine…')
         os.system('twine upload dist/*')
@@ -76,7 +76,7 @@ class UploadCommand(Command):
 
 # Where the magic happens:
 setup(
-    name=NAME,
+    name='fs'+NAME, # 'cast' already exists in PyPIp
     version=about['__version__'],
     description=DESCRIPTION,
     long_description=long_description,
@@ -96,11 +96,11 @@ setup(
     include_package_data=True,
     license='MIT',
     classifiers=[
-        # Trove classifiers
         'Development Status :: 3 - Alpha',
-        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'Operating System :: POSIX :: Linux',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython'
     ],
     # $ setup.py publish support.
     cmdclass={
