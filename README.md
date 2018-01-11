@@ -1,7 +1,7 @@
 # Cast
 > command line app for file system templates.
 
-Cist can modify the structure of multiple directories at once.
+Cast can modify the structure of multiple directories at once.
 Provided these directories are registered for a common template - moving,
 renaming or deleting folders from that template will apply those changes
 to the directories (called instances of the template).
@@ -77,6 +77,8 @@ pip install -e .
 
 ## Release History
 
+* 0.0.2
+    * Add proper logging (log file can be found in ~/.cast/logs.txt).
 * 0.0.1
     * Work in progress
 
