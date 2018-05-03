@@ -84,7 +84,7 @@ setup(
     author_email=EMAIL,
     url=URL,
     packages=find_packages(exclude=('tests',)),
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-runner'],
     python_requires='>=3.6',
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],

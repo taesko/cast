@@ -3,15 +3,10 @@ import hashlib
 import json
 import logging
 import os
-import pathlib
-
 import shutil
 
-from cast import exceptions, dirdiff, conform, CAST_DIR
+from cast import exceptions, dirdiff, conform, settings
 
-CONFIG_FILE = CAST_DIR / 'config.json'
-TEMPLATE_DIR = CAST_DIR / 'templates'
-TEMPLATE_DIR.mkdir(exist_ok=True)
 logger = logging.getLogger(__name__)
 
 
@@ -19,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 def load_json():
-    if CONFIG_FILE.exists():
-        with open(CONFIG_FILE, mode='r') as f:
+    if settings.USER_CONFIG_FILE.exists():
+        with open(settings.USER_CONFIG_FILE, mode='r') as f:
             return json.load(f)
     else:
         return {}
 
 
 def dump_json(obj):
-    with open(CONFIG_FILE, mode='w') as f:
+    with open(settings.USER_CONFIG_FILE, mode='w') as f:
         json.dump(obj, f)
 
 
@@ -44,7 +39,7 @@ def register_template(name, path):
         raise exceptions.TemplateExistsError(template_name=name)
     try:
         copied_root = conform.copy_dir_tree(source_dir_path=path,
-                                            destination_dir_path=TEMPLATE_DIR, destination_name=name)[0]
+                                            destination_dir_path=settings.USER_TEMPLATE_DIR, destination_name=name)[0]
     except Exception:
         logger.exception("can't copy dir tree from %s to template folder", path)
         cleanup()
@@ -68,7 +63,7 @@ def register_template(name, path):
 def deregister_template(name):
     if name not in all_template_names():
         raise exceptions.TemplateNotFoundError(name)
-    shutil.rmtree(TEMPLATE_DIR / name)
+    shutil.rmtree(template_path(name))
     all_templates = load_json()
     del all_templates[name]
     dump_json(all_templates)
@@ -85,7 +80,7 @@ def register_instance(name, path):
         raise NotADirectoryError("instance {} is not a directory".format(path))
     elif name not in all_template_names():
         raise exceptions.TemplateNotFoundError(name)
-    elif not conform.is_conformed(dir_path=path, template_path=TEMPLATE_DIR / name):
+    elif not conform.is_conformed(dir_path=path, template_path=template_path(name)):
         raise exceptions.NotConformedDirError(directory=path, template=name)
     else:
         with modify_template_config(name) as dct:
@@ -119,7 +114,7 @@ def all_template_names():
 
 
 def template_path(name):
-    return TEMPLATE_DIR / name
+    return settings.USER_TEMPLATE_DIR / name
 
 
 def template_config(name):

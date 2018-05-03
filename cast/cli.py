@@ -1,14 +1,14 @@
+import os
 import pathlib
 
 import click
-import os
-
 
 import cast.conform
+import cast.settings  # initialize logging configuration
 from cast import exceptions, cliprint
+from cast.template import path as tpath
 from cast.template import registry
 from cast.template.core import Template
-from cast.template import path as tpath
 
 
 # TODO fix problems with functions raising uncatched exceptions when working with outdated templates
