@@ -11,12 +11,21 @@ from cast.template import registry
 from cast.template.core import Template
 
 
-# TODO fix problems with functions raising uncatched exceptions when working with outdated templates
+# TODO fix problems with functions raising uncaught exceptions when working with outdated templates
 
 class CliGroup(click.Group):
     def list_commands(self, ctx):
         """ Override"""
         return ['reg', 'dereg', 'add', 'rm', 'mv', 'conform', 'info']
+
+
+class TemplateType(click.ParamType):
+    name = "TemplateType"
+
+    def convert(self, value, param, ctx):
+        if not cast.template.core.exists(value):
+            self.fail("template {!r} doesn't exist".format(value), param, ctx)
+        return cast.template.core.Template(value)
 
 
 @click.group(cls=CliGroup)
@@ -25,27 +34,22 @@ def cli():
 
 
 @cli.command()
-@click.argument('name')
+@click.argument('template', type=TemplateType())
 @click.argument('dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True))
 @click.option('-c', '--conform-dir/--no-conform-dir',
               help="if the directory does not conform to template - create the missing subdirectories")
-def reg(name, dir_path, conform_dir):
-    """ Register the directory as an instance of the template with :name:.
+def reg(template, dir_path, conform_dir):
+    """ Register the directory as an instance of the template.
 
     If the directory does not conform to the template's structure this action fails.
     Use the -c/--conform-dir flag to have cast create missing directories."""
-    try:
-        registry.register_instance(name=name, path=dir_path)
-    except exceptions.TemplateNotFoundError:
-        raise click.BadParameter("template {!r} doesn't exist".format(name), param_hint='name')
-    except exceptions.NotConformedDirError:
+    if not cast.conform.is_conformed(dir_path=dir_path, template_path=template.path):
         if conform_dir:
-            path = Template(name).path
-            cast.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
-            registry.register_instance(name=name, path=dir_path)
+            cast.conform.conform_dir_to_template(dir_path=dir_path, template_path=template.path)
         else:
-            raise click.BadParameter("{!r} is not conformed to template {!r}".format(dir_path, name),
+            raise click.BadParameter("{!r} is not conformed to template {!r}".format(dir_path, template.name),
                                      param_hint='dir_path')
+    registry.register_instance(name=template.name, path=dir_path)
 
 
 @cli.command()
@@ -81,8 +85,9 @@ def add(name, dir_paths, make_dirs):
     elif make_dirs:
         add_dirs(name=name, dir_paths=dir_paths)
     elif len(dir_paths) > 1:
-        raise click.BadParameter("multiple source paths given for template. perhaps you skipped an '-m' flag ?",
-                                 param_hint='dir_paths')
+        raise click.BadParameter(
+            "multiple source paths given for template. perhaps you forgot the '--make-dirs' flag ?",
+            param_hint='dir_paths')
     else:
         add_template(name, dir_path=dir_paths[0])
 
@@ -99,6 +104,8 @@ def add_template(name, dir_path):
 
 
 def add_dirs(name, dir_paths):
+    if not cast.template.core.exists(name):
+        raise click.BadParameter("{!r} is not an existing template.".format(name))
     template = Template(name)
     template_paths = (tpath.TemplatePath(template=template, rel_path=dp) for dp in dir_paths)
     for tp in template_paths:
@@ -115,43 +122,38 @@ def add_dirs(name, dir_paths):
 
 
 @cli.command()
-@click.argument('name')
+@click.argument('template', type=TemplateType())
 @click.argument('rel_paths', nargs=-1)
 @click.option('-i', '--in-instances', is_flag=True, default=False,
               help='remove(from) instances as well')
 @click.option('-r', '--recurse', is_flag=True, default=False)
-def rm(name, rel_paths, in_instances, recurse):
+def rm(template, rel_paths, in_instances, recurse):
     """ Remove an entire template or it's directories.
 
-    If called with a sole argument :name: it will remove that template and all of it's instances will be untracked.
+    If called with a sole argument :name: it will remove that template and it's instances will no longer be tracked.
     When called with additional arguments :rel_paths: it will remove those directories under the template's root.
 
     The -i/--instances-included flag applies the removal to instances as well - removing their directories or
     deleting them entirely.
     """
     if rel_paths:
-        rm_dirs(name=name, rel_paths=rel_paths,
+        rm_dirs(template=template, rel_paths=rel_paths,
                 in_instances=in_instances, recurse=recurse)
     else:
         if click.confirm("You are about to remove the template {!r}. "
                          "It's instances will not be removed but they will be unregistered."
-                         "\nDo you want to continue?".format(name),
+                         "\nDo you want to continue?".format(template.name),
                          abort=True):
-            try:
-                registry.deregister_template(name)
-            except exceptions.TemplateNotFoundError:
-                raise click.BadParameter("template {!r} doesn't exist.".format(name), param_hint='name')
+            registry.deregister_template(template.name)
 
 
-def rm_dirs(name, rel_paths, in_instances=False, recurse=False):
+def rm_dirs(template, rel_paths, in_instances=False, recurse=False):
     """ Remove directories specified by :rel_paths: of template with :name:.
 
     If the :in_instances: flag is raised the removal is also applied to every instance of the template.
     If the :recurse: flag is raised the directory is removed recursively deleting **everything**.
     """
-
-    t = Template(name)
-    template_paths = [tpath.TemplatePath(template=t, rel_path=rp) for rp in rel_paths]
+    template_paths = [tpath.TemplatePath(template=template, rel_path=rp) for rp in rel_paths]
     # list comprehension does not contain all files that are removed
     # because contents of directories of instances are not included
     # when the :recurse: flag is raised
@@ -185,19 +187,18 @@ def rm_dirs(name, rel_paths, in_instances=False, recurse=False):
 
 
 @cli.command()
-@click.argument('name')
+@click.argument('template', type=TemplateType())
 @click.argument('src')
 @click.argument('dst')
 @click.option('-v', '--verbose', count=True)
-def mv(name, src, dst, verbose):
+def mv(template, src, dst, verbose):
     """ For the template with :name: move the directory at :src: to :dst:.
     All instances of the template get adequately updated
 
     Both src and dst must be paths relative to the template's root.
     """
-    t = Template(name)
-    src_tp = tpath.TemplatePath(template=t, rel_path=src)
-    dst_tp = tpath.TemplatePath(template=t, rel_path=dst)
+    src_tp = tpath.TemplatePath(template=template, rel_path=src)
+    dst_tp = tpath.TemplatePath(template=template, rel_path=dst)
     moves = [(os.fspath(src_tp), os.fspath(dst_tp))]
     for a, b in zip(src_tp, dst_tp):
         moves.append((a, b))
@@ -215,22 +216,18 @@ def mv(name, src, dst, verbose):
 
 
 @cli.command()
-@click.argument('template')
+@click.argument('template', type=TemplateType())
 @click.argument('dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True))
 @click.option('-c', '--check-only', is_flag=True, default=False)
 def conform(template, dir_path, check_only):
     """ Conforms the directory to the template's structure"""
-    try:
-        path = Template(name=template).path
-    except exceptions.TemplateNotFoundError as e:
-        raise click.BadParameter(message=e.msg, param=template)
     if check_only:
-        if cast.conform.is_conformed(dir_path=dir_path, template_path=path):
+        if cast.conform.is_conformed(dir_path=dir_path, template_path=template.path):
             click.echo("OK")
         else:
             click.echo("NOT OK")
     else:
-        cast.conform.conform_dir_to_template(dir_path=dir_path, template_path=path)
+        cast.conform.conform_dir_to_template(dir_path=dir_path, template_path=template.path)
 
 
 @cli.command()

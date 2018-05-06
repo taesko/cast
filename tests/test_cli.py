@@ -40,7 +40,7 @@ def test_add_dirs():
     pass
 
 
-REG_ERROR = "Usage: reg [OPTIONS] NAME DIR_PATH\n\nError: Invalid value for {hint}: {msg}\n"
+REG_ERROR = "Usage: reg [OPTIONS] TEMPLATE DIR_PATH\n\nError: Invalid value for {hint}: {msg}\n"
 
 
 @pytest.mark.parametrize('name,dir_path,output', [
@@ -133,8 +133,8 @@ def tcli_rm_template():
         registry.deregister_template(name)
 
 
-RM_TEMPLATE_USAGE_ERROR = ("Usage: rm [OPTIONS] NAME [REL_PATHS]...\n\n"
-                           "Error: Invalid value for name: template {!r} doesn't exist.\n")
+RM_TEMPLATE_USAGE_ERROR = ("Usage: rm [OPTIONS] TEMPLATE [REL_PATHS]...\n\n"
+                           "Error: Invalid value for \"template\": template {!r} doesn't exist\n")
 
 
 @pytest.mark.parametrize('name', [
@@ -157,7 +157,7 @@ def test_rm_template(name, tcli_rm_template):
     assert not tcore.exists(name)
 
     result = runner.invoke(cli.rm, [name], input='y')
-    assert result.output == yes_prompt + RM_TEMPLATE_USAGE_ERROR.format(name)
+    assert result.output == RM_TEMPLATE_USAGE_ERROR.format(name)
 
     result = runner.invoke(cli.rm, [name], input='n')
-    assert result.output == no_prompt
+    assert result.output == RM_TEMPLATE_USAGE_ERROR.format(name)
