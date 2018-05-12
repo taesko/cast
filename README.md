@@ -9,7 +9,9 @@ to the directories (called instances of the template).
 
 ## Installation
 
-Linux:
+`pip install fscast`
+
+Development version:
 
 ```sh
 git clone https://github.com/taesko/cast.git
