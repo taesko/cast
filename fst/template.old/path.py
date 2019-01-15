@@ -65,7 +65,9 @@ class TemplatePath:
         return self.joined == other.joined
 
     def __repr__(self):
-        return "{}({!r}, {!r})".format(self.__class__.__name__, self.template, self.rel_path)
+        return "{}({!r}, {!r})".format(
+            self.__class__.__name__, self.template, self.rel_path
+        )
 
     def __str__(self):
         return str(self.joined)
@@ -77,14 +79,18 @@ class TemplatePath:
         return pathlib.Path(instance_root, self.rel_path)
 
 
-MoveInfo = collections.namedtuple('MoveInfo', ['src', 'dst', 'error'])
+MoveInfo = collections.namedtuple("MoveInfo", ["src", "dst", "error"])
 
 
 def aggregate_all_paths(template_path):
     template = template_path.template
     for instance in template:
-        if not conform.is_conformed(dir_path=instance, template_path=template.path):
-            raise exceptions.NotConformedDirError(directory=instance, template=template.name)
+        if not conform.is_conformed(
+            dir_path=instance, template_path=template.path
+        ):
+            raise exceptions.NotConformedDirError(
+                directory=instance, template=template.name
+            )
         yield template_path(instance)
 
 
@@ -104,8 +110,12 @@ def move(template_src_path, template_dst_path):
         raise ValueError("Paths aren't from the same template")
     template = template_src_path.template
     for instance in template:
-        if not conform.is_conformed(dir_path=instance, template_path=template.path):
-            raise exceptions.NotConformedDirError(directory=instance, template=template.name)
+        if not conform.is_conformed(
+            dir_path=instance, template_path=template.path
+        ):
+            raise exceptions.NotConformedDirError(
+                directory=instance, template=template.name
+            )
     with registry.modify_template_structure(template.name):
         shutil.move(template_src_path, template_dst_path)
 
@@ -121,7 +131,11 @@ def move(template_src_path, template_dst_path):
             error = None
         except OSError as e:
             logger.exception("can't move %r to %r", src, dst)
-            logger.critical("instance %r of %r is probably no longer conformed", instance, template)
+            logger.critical(
+                "instance %r of %r is probably no longer conformed",
+                instance,
+                template,
+            )
             final_destination = dst
             error = e
         result[instance] = MoveInfo(src=src, dst=final_destination, error=error)
@@ -141,7 +155,11 @@ def _remove(template_path, remove_function, only_in_template):
             remove_function(path)
         except OSError:
             logger.exception("can't remove %r", path)
-            logger.critical("instance %r of template %r is probably no longer conformed", instance, template.name)
+            logger.critical(
+                "instance %r of template %r is probably no longer conformed",
+                instance,
+                template.name,
+            )
             failed[path] = sys.exc_info()
     return failed
 
@@ -157,17 +175,25 @@ def remove_dir(template_path, rmtree=False, only_in_template=False):
     :type template_path: TemplatePath
     :type rmtree: bool
     """
+
     def remove_function(path):
         if rmtree:
             shutil.rmtree(path)
         else:
             os.rmdir(path)
-    return _remove(template_path, remove_function=remove_function, only_in_template=only_in_template)
+
+    return _remove(
+        template_path,
+        remove_function=remove_function,
+        only_in_template=only_in_template,
+    )
 
 
 def make_dir(template_path):
     if template_path.exists():
-        raise FileExistsError("cannot create directory '{!s}': file exists".format(template_path))
+        raise FileExistsError(
+            "cannot create directory '{!s}': file exists".format(template_path)
+        )
     paths = list(aggregate_all_paths(template_path))
     with registry.modify_template_structure(template_path.template.name):
         os.mkdir(template_path)

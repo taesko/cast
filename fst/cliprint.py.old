@@ -16,7 +16,7 @@ def print_registered(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
     for t in core.Template.all():
-        click.echo('{} -> {}'.format(t.name, ':'.join(t.instances)))
+        click.echo("{} -> {}".format(t.name, ":".join(t.instances)))
     ctx.exit()
 
 
@@ -25,7 +25,9 @@ def print_tree(dir_path):
     if not os.path.exists(dir_path):
         raise FileNotFoundError("dir_path {} doesn't exist".format(dir_path))
     elif not os.path.isdir(dir_path):
-        raise NotADirectoryError("dir_path {} is not a valid directory".format(dir_path))
+        raise NotADirectoryError(
+            "dir_path {} is not a valid directory".format(dir_path)
+        )
     try:
         subprocess.run(["tree", str(dir_path)], stdout=sys.stdout)
     except OSError as e:
@@ -35,10 +37,10 @@ def print_tree(dir_path):
         lines = []
         for rel_subdir in dirdiff.flattened_subdirs(dir_path):
             indent = 2 + 2 * rel_subdir.count(os.path.sep)
-            fill = '-'
+            fill = "-"
             name = os.path.basename(rel_subdir)
             lines.append("{} {}".format(fill * indent, name))
-        click.echo('\n'.join(lines))
+        click.echo("\n".join(lines))
 
 
 def print_dir_listing(dir_path):
@@ -46,23 +48,33 @@ def print_dir_listing(dir_path):
     if not os.path.exists(dir_path):
         raise FileNotFoundError("dir_path {} doesn't exist".format(dir_path))
     elif not os.path.isdir(dir_path):
-        raise NotADirectoryError("dir_path {} is not a valid directory".format(dir_path))
+        raise NotADirectoryError(
+            "dir_path {} is not a valid directory".format(dir_path)
+        )
     subprocess.run(["ls", dir_path], stdout=sys.stdout)
 
 
-def print_structure(dir_path, structure='tree'):
+def print_structure(dir_path, structure="tree"):
     click.echo("Structure:\n")
-    if structure == 'tree':
+    if structure == "tree":
         print_tree(dir_path=dir_path)
-    elif structure == 'list':
+    elif structure == "list":
         print_dir_listing(dir_path=dir_path)
     else:
-        raise ValueError("Unrecognized parameter {} for argument :structure".format(structure))
+        raise ValueError(
+            "Unrecognized parameter {} for argument :structure".format(
+                structure
+            )
+        )
 
 
 def print_template_status(template_name, verbosity=0):
     status = core.Status(name=template_name)
-    click.echo("Conformity: {}, Hash: {}".format(status.conformity_status(), status.hash_status()))
+    click.echo(
+        "Conformity: {}, Hash: {}".format(
+            status.conformity_status(), status.hash_status()
+        )
+    )
     if verbosity:
         click.echo("Instances:\n")
         for instance, st_code in status:

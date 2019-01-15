@@ -31,7 +31,10 @@ class Template:
         for t in cls.all():
             for root in t.instances:
                 parents = map(os.path.abspath, path.parents)
-                if os.path.abspath(root) == os.path.abspath(path) or root in parents:
+                if (
+                    os.path.abspath(root) == os.path.abspath(path)
+                    or root in parents
+                ):
                     result.append(t)
         return result
 
@@ -52,7 +55,7 @@ class Template:
 
         :rtype: str
         """
-        return registry.template_config(self.name)['hash']
+        return registry.template_config(self.name)["hash"]
 
     @property
     def instances(self):
@@ -60,7 +63,7 @@ class Template:
 
         :rtype: list[str]
         """
-        return registry.template_config(self.name)['instances']
+        return registry.template_config(self.name)["instances"]
 
     def __eq__(self, other):
         return self.name == other.name
@@ -75,7 +78,6 @@ def exists(name):
 
 
 class Status:
-
     def __init__(self, name):
         self.template = Template(name)
 
@@ -87,24 +89,26 @@ class Status:
         conformed = conform.is_conformed(item, self.template.path)
         registered = isinstance_(item, self.template.name)
         template_ok = self.hash_status()
-        if template_ok == 'NOT OK':
-            return 'UNKNOWN'
+        if template_ok == "NOT OK":
+            return "UNKNOWN"
         elif conformed and registered:
-            return 'OK'
+            return "OK"
         elif conformed:
-            return 'UNREGISTERED'
+            return "UNREGISTERED"
         else:
-            return 'NOT OK'
+            return "NOT OK"
 
     def conformity_status(self):
-        if all(st == 'OK' for _, st in self):
-            return 'OK'
+        if all(st == "OK" for _, st in self):
+            return "OK"
         else:
-            return 'NOT OK'
+            return "NOT OK"
 
     def hash_status(self):
-        ok = self.template.hash == registry.template_hash(name=self.template.name)
-        return 'OK' if ok else 'NOT OK'
+        ok = self.template.hash == registry.template_hash(
+            name=self.template.name
+        )
+        return "OK" if ok else "NOT OK"
 
     @classmethod
     def of_instance(cls, path):
