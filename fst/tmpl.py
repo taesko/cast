@@ -7,7 +7,7 @@ import fst.dirdiff
 import fst.conform
 
 
-def register(cursor, instance_path, template):
+def connect(cursor, instance_path, template):
     assert template['id']
     assert_user(
         os.path.isdir(instance_path),
@@ -50,7 +50,7 @@ def register(cursor, instance_path, template):
     return
 
 
-def deregister(cursor, instance):
+def disconnect(cursor, instance):
     cursor.execute(
         """
         UPDATE instances SET active=0
@@ -60,7 +60,7 @@ def deregister(cursor, instance):
     )
     assert_user(
         cursor.rowcount,
-        "No registered instance to path {}".format(instance),
+        "Path {} is not a connected instance.".format(instance),
         "TMPUSRU001",
     )
     return
@@ -87,7 +87,7 @@ def add_template(cursor, path, name):
     except sqlite3.IntegrityError as err:
         assert_user(
             0,
-            "Template to path=? or name=? already exists".format(path, name),
+            "Template to path={} or name={} already exists".format(path, name),
             "TMPUSRAT002",
             from_exc=err,
         )
@@ -106,6 +106,6 @@ def rm_template(cursor, path=None, name=None):
     )
     assert_user(
         cursor.rowcount,
-        "Templates with path=? or name=? does not exist".format(path, name),
+        "Templates with path={} or name={} does not exist".format(path, name),
         "TMPUSRRT001",
     )

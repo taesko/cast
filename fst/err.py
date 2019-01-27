@@ -1,15 +1,15 @@
-class FSTExc(Exception):
+class FSTErr(Exception):
     pass
 
 
-class UserError(FSTExc):
+class UserError(FSTErr):
     def __init__(self, msg, code):
         super().__init__(msg)
         self.msg = msg
         self.code = code
 
 
-class SysError(FSTExc):
+class SysError(FSTErr):
     def __init__(self, msg, code):
         super().__init__(msg, code)
         self.msg = msg
