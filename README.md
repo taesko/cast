@@ -44,16 +44,7 @@ fstd --help
 
 
 ## Installation
-
 `pip install fst`
-
-Development version:
-
-```sh
-git clone https://github.com/taesko/fst.git
-cd fst
-pip install .
-```
 
 NOTE: This project has only been tested on linux. Installation is no different
 on other OS provided git and pip are installed, but it's not guaranteed to
