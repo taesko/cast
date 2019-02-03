@@ -109,3 +109,47 @@ def rm_template(cursor, path=None, name=None):
         "Templates with path={} or name={} does not exist".format(path, name),
         "TMPUSRRT001",
     )
+
+
+def pull_relationships_by_template(cursor, template=None, instance=None):
+    pull_all = not template and not instance
+    cursor.execute(
+        """
+        SELECT
+            T.id AS t_id,
+            T.name AS t_name,
+            T.path AS t_path,
+            T.checksum AS t_checksum,
+            T.active AS t_active,
+            I.id AS i_id,
+            I.path AS i_path,
+            I.template_id AS i_template_id,
+            I.active AS i_active
+        FROM templates AS T
+        LEFT JOIN instances AS I ON T.id=I.template_id
+        WHERE
+            T.active=1 AND
+            (I.active=1 OR I.active IS NULL) AND
+            (T.path = ?  OR T.name = ?  OR I.path = ? OR true=?)
+        """,
+        [template, template, instance, pull_all],
+    )
+    templates = {}
+    for row in cursor.fetchall():
+        template = {
+            col[2:]: row[col]
+            for col in row.keys() if col.startswith("t_")
+        }
+        instance = {
+            col[2:]: row[col]
+            for col in row.keys() if col.startswith("i_")
+        }
+        if all(template['id'] != t for t in templates):
+            templates[template['id']] = {
+                'template_row': template,
+                'instances': {},
+            }
+        if instance and instance['id'] is not None:
+            templates[template['id']]['instances'][instance['id']] = instance
+
+    return templates

@@ -206,7 +206,7 @@ def pull_relationships(cursor, template, instance):
     }
 
 
-def cli():
+def main():
     parser = argparse.ArgumentParser(
         description="Modify multiple directories through the use of templates."
     )
@@ -314,3 +314,7 @@ def cli():
     if args.hook:
         print("Error: Not implemented. (CLI002)", file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

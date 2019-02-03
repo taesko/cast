@@ -22,5 +22,5 @@ if not exists:
         cursor.executescript(f.read())
 
 
-def connect(db, path):
+def connect(path):
     return conn

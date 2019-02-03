@@ -14,12 +14,12 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = "fst"
 DESCRIPTION = "FIle System Templates"
-URL = "https://github.com/taesko/{}".format(fst)
+URL = "https://github.com/taesko/{}".format(NAME)
 EMAIL = "taeskow@gmail.com"
 AUTHOR = "Antonio Todorov"
 
 # What packages are required for this module to be executed?
-REQUIRED = ["click"]
+REQUIRED = ["watchdog"]
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
@@ -28,18 +28,20 @@ REQUIRED = ["click"]
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-# Import the README and use it as the long-description.
-# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
 with io.open(os.path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = "\n" + f.read()
-try:
-    import pypandoc
-
-    long_description = pypandoc.convert(
-        source=long_description, to="rst", format="markdown_github"
-    )
-except Exception:
-    print("warning - unable to convert markdown README to restructured text.")
+# Import the README and use it as the long-description.
+# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
+#  with io.open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+#      long_description = "\n" + f.read()
+#  try:
+#      import pypandoc
+#
+#      long_description = pypandoc.convert(
+#          source=long_description, to="rst", format="markdown_github"
+#      )
+#  except Exception:
+#      print("warning - unable to convert markdown README to restructured text.")
 
 # Load the package's __version__.py module as a dictionary.
 about = {}
@@ -128,7 +130,9 @@ setup(
     python_requires=">=3.6",
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
-    entry_points={"console_scripts": ["fst=fst.cli:cli"]},
+    entry_points={
+        "console_scripts": ["fst=fst.cli:main", "fstd=fst.au.cli:main"]
+    },
     install_requires=REQUIRED,
     include_package_data=True,
     license="MIT",
