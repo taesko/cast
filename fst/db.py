@@ -2,13 +2,10 @@ import sqlite3
 import os
 
 from fst.trace import trace
+from fst.config import CONFIG
 
-HOME_DIR = os.environ.get("HOME")
-if HOME_DIR == "/":
-    HOME_DIR = "/var/"
-    DB_PATH = os.path.join(HOME_DIR, "fst.db")
-else:
-    DB_PATH = os.path.join(HOME_DIR, ".fst.db")
+# TODO load dynamically and guess current app
+DB_PATH = CONFIG['fstctl']['db_path']
 
 exists = os.path.exists(DB_PATH)
 conn = sqlite3.connect(DB_PATH)

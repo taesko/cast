@@ -3,7 +3,7 @@ CREATE TABLE templates (
     id INTEGER PRIMARY KEY NOT NULL UNIQUE,
     name text UNIQUE NOT NULL,
     path text NOT NULL UNIQUE,
-    checksum text NOT NULL UNIQUE,
+    checksum text NOT NULL,
     active integer NOT NULL DEFAULT 1
 );
 

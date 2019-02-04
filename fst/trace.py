@@ -14,7 +14,7 @@ file_handler.setFormatter(formatter)
 file_handler.setLevel(logging.DEBUG)
 root.addHandler(file_handler)
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
+stream_handler.setLevel(logging.DEBUG)
 stream_handler.setFormatter(formatter)
 root.addHandler(stream_handler)
 

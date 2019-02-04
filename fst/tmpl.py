@@ -1,12 +1,35 @@
 import sqlite3
 import os
 import hashlib
+import signal
 
 from fst.err import *
 import fst.dirdiff
 import fst.conform
+from fst.config import CONFIG
 
 
+def signal_au_daemon(signum):
+    try:
+        daemon_pid = int(open(CONFIG['au']['pidfile']).read())
+        fst.trace.trace('Auto update daemon pid is: %s', daemon_pid)
+    except FileNotFoundError:
+        fst.trace.warn('Auto update daemon is not running.')
+        daemon_pid = None
+
+    def decorator(func):
+        def wrapped(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if daemon_pid:
+                os.kill(daemon_pid, signum)
+            return result
+
+        return wrapped
+
+    return decorator
+
+
+@signal_au_daemon(signal.SIGUSR1)
 def connect(cursor, instance_path, template):
     assert template['id']
     assert_user(
@@ -50,6 +73,7 @@ def connect(cursor, instance_path, template):
     return
 
 
+@signal_au_daemon(signal.SIGUSR1)
 def disconnect(cursor, instance):
     cursor.execute(
         """
@@ -66,6 +90,7 @@ def disconnect(cursor, instance):
     return
 
 
+@signal_au_daemon(signal.SIGUSR1)
 def add_template(cursor, path, name):
     assert_user(
         os.path.isdir(path), "{} is not a directory".format(path), "TMPUSRAT001"
@@ -95,6 +120,7 @@ def add_template(cursor, path, name):
     return
 
 
+@signal_au_daemon(signal.SIGUSR1)
 def rm_template(cursor, path=None, name=None):
     assert path or name
     cursor.execute(

@@ -1,0 +1,9 @@
+{
+    "au": {
+        "pidfile": "/var/run/fstd",
+        "db_path": "/home/taesko/.fst.db"
+    },
+    "fstctl": {
+        "db_path": "/home/taesko/.fst.db"
+    }
+}
