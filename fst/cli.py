@@ -152,9 +152,22 @@ def print_instance_info(cursor, instance, template, print_conformity,
 
 def print_all_info(cursor, templates, instances, print_conformity, print_struct,
                    print_relationships):
+    fst.trace.info('Printing all info')
     for t in templates:
-        children = [i for i in instances if i['template_id'] == t['id']]
-        print("{} ({}) -> {}".format(t['name'], t['path'], ' : '.join(children)))
+        instances_info = []
+        for instance in instances:
+            if(instance['template_id'] == t['id']):
+                is_conformed = fst.dirdiff.is_subset(instance['path'], t['path'])
+                conformity_status = 'OK' if is_conformed else 'NOT OK'
+                instances_info.append(
+                    '{}({})'.format(instance['path'], conformity_status)
+                )
+
+        print("{} ({}) -> {}".format(
+            t['name'],
+            t['path'],
+            ' : '.join(instances_info))
+        )
 
 
 def pull_relationships(cursor, template, instance):

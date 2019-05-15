@@ -9,18 +9,19 @@ import fst.conform
 from fst.config import CONFIG
 
 
-def signal_au_daemon(signum):
-    try:
-        daemon_pid = int(open(CONFIG['au']['pidfile']).read())
-        fst.trace.trace('Auto update daemon pid is: %s', daemon_pid)
-    except FileNotFoundError:
-        fst.trace.warn('Auto update daemon is not running.')
-        daemon_pid = None
+au_daemon_pid = None
+try:
+    au_daemon_pid = int(open(CONFIG['au']['pidfile']).read())
+    fst.trace.trace('Auto update daemon pid is: %s', daemon_pid)
+except FileNotFoundError:
+    fst.trace.warn('Auto update daemon is not running.')
 
+
+def signal_au_daemon(signum):
     def decorator(func):
         def wrapped(*args, **kwargs):
             result = func(*args, **kwargs)
-            if daemon_pid:
+            if au_daemon_pid:
                 os.kill(daemon_pid, signum)
             return result
 
